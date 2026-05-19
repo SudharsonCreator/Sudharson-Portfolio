@@ -470,7 +470,7 @@ const Hero = () => {
               <div className="absolute inset-0 rounded-3xl border border-white/20 group-hover:-rotate-12 transition-transform duration-700 delay-75" />
               <div className="absolute inset-2 rounded-2xl overflow-hidden bg-brand-bg border border-brand-primary/30 p-1">
                 <img 
-                  src="/profile.png" 
+                  src={`${import.meta.env.BASE_URL}profile.png`}
                   alt="Sudharson A" 
                   className="w-full h-full object-cover rounded-xl transition-all duration-700 group-hover:scale-105"
                   referrerPolicy="no-referrer"
