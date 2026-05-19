@@ -1,0 +1,6 @@
+{
+  "name": "Securitas Portfolio",
+  "description": "A high-end cybersecurity and network engineering portfolio featuring project logs, credentials, and real-time status indicators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
