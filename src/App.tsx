@@ -814,10 +814,41 @@ const Credentials = () => (
 
 const Contact = () => {
   const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [result, setResult] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSent(true);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setResult("");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    formData.append(
+      "access_key",
+      import.meta.env.VITE_WEB3FORMS_ACCESS_KEY
+    );
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        form.reset();
+        setIsSent(true);
+      } else {
+        setResult("TRANSMISSION FAILED // PLEASE TRY AGAIN");
+      }
+    } catch (error) {
+      setResult("NETWORK ERROR // PLEASE TRY AGAIN");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -826,7 +857,7 @@ const Contact = () => {
         <TextScramble text="Establish Uplink" />
       </h3>
       <p className="text-slate-500 mb-16">Collaborate on security audits, networking projects, or software architecture.</p>
-      
+
       <AnimatePresence mode="wait">
         {!isSent ? (
           <motion.div
@@ -838,13 +869,17 @@ const Contact = () => {
             <TiltCard>
               <form onSubmit={handleSubmit} className="glass-card p-8 md:p-12 relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-primary to-transparent opacity-50" />
-                
+
+                <input type="hidden" name="subject" value="New Portfolio Transmission" />
+                <input type="hidden" name="from_name" value="Sudharson Portfolio" />
+
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
                   <div className="text-left">
                     <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-2">Identity / Name</label>
                     <input 
                       required
-                      type="text" 
+                      type="text"
+                      name="name"
                       placeholder="Agent Zero" 
                       className="w-full bg-white/5 border border-brand-border rounded-xl px-5 py-4 text-white focus:border-brand-primary outline-none transition-colors"
                     />
@@ -853,26 +888,39 @@ const Contact = () => {
                     <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-2">Communication Channel / Email</label>
                     <input 
                       required
-                      type="email" 
+                      type="email"
+                      name="email"
                       placeholder="agent@secure.network" 
                       className="w-full bg-white/5 border border-brand-border rounded-xl px-5 py-4 text-white focus:border-brand-primary outline-none transition-colors"
                     />
                   </div>
                 </div>
-                
+
                 <div className="text-left mb-8">
                   <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-2">Transmission Payload / Message</label>
                   <textarea 
                     required
+                    name="message"
                     placeholder="Initiate mission details here..." 
                     rows={5}
                     className="w-full bg-white/5 border border-brand-border rounded-xl px-5 py-4 text-white focus:border-brand-primary outline-none transition-colors resize-none"
                   />
                 </div>
-                
-                <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl flex items-center justify-center gap-3 transition-all group">
-                  SEND TRANSMISSION <Zap size={18} className="group-hover:translate-x-1 transition-transform" />
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-3 transition-all group"
+                >
+                  {isSubmitting ? "TRANSMITTING..." : "SEND TRANSMISSION"}
+                  {!isSubmitting && <Zap size={18} className="group-hover:translate-x-1 transition-transform" />}
                 </button>
+
+                {result && (
+                  <p className="mt-5 text-center text-sm font-mono text-red-400">
+                    {result}
+                  </p>
+                )}
               </form>
             </TiltCard>
           </motion.div>
@@ -891,7 +939,10 @@ const Contact = () => {
               Transmission received. Data packets have been successfully routed to the secure terminal. Expect a response within one standard business cycle.
             </p>
             <button 
-              onClick={() => setIsSent(false)}
+              onClick={() => {
+                setIsSent(false);
+                setResult("");
+              }}
               className="px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl text-xs font-mono tracking-widest uppercase transition-all"
             >
               Reset Terminal
